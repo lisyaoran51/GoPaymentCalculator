@@ -1,7 +1,6 @@
 package goPaymentCalculator
 
 import (
-	"fmt"
 	"math"
 )
 
@@ -37,15 +36,22 @@ func NewRedeemCalculator(config *RedeemCalculatorConfig) *RedeemCalculator {
 	return redeemCalculator
 }
 
-func (r *RedeemCalculator) Calculate(memeber PaymentMember, costPoint, costCoin float32) (point, coin float32, err error) {
+func (r *RedeemCalculator) calculate(memeber PaymentMember, costPoint, costCoin float32, callChild bool) (point, coin float32, err error) {
 	point, coin, _ = r.EmptyCalculator.Calculate(memeber, costPoint, costCoin)
-	if r.child != nil {
+	if r.child != nil && callChild {
 		point, coin, err = r.child.Calculate(memeber, point, coin)
-		fmt.Printf("RedeemCalculator after: point:%f, coin:%f\n", point, coin)
 	}
 
 	tempPoint := float32(math.Min(float64(coin*r.redeemRatio+point), float64(memeber.GetPoint())))
 	coin -= (tempPoint - point) / r.redeemRatio
 	point = tempPoint
 	return
+}
+
+func (r *RedeemCalculator) Calculate(memeber PaymentMember, costPoint, costCoin float32) (point, coin float32, err error) {
+	return r.calculate(memeber, costPoint, costCoin, true)
+}
+
+func (r *RedeemCalculator) CalculateNonComposite(memeber PaymentMember, costPoint, costCoin float32) (point, coin float32, err error) {
+	return r.calculate(memeber, costPoint, costCoin, false)
 }

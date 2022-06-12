@@ -11,22 +11,23 @@ package goPaymentCalculator
  */
 
 type EmptyCalculator struct {
-	PaymentCalculator
-	child PaymentCalculator
+	PaymentCalculatorImpl
+}
+
+func NewPaymentCalculator() PaymentCalculator {
+	return NewEmptyCalculator()
 }
 
 func NewEmptyCalculator() *EmptyCalculator {
-	emptyCalculator := &EmptyCalculator{}
+	emptyCalculator := &EmptyCalculator{
+		PaymentCalculatorImpl: *NewPaymentCalculatorImpl(),
+	}
 	emptyCalculator.PaymentCalculator = emptyCalculator
 	return emptyCalculator
 }
 
-func (e *EmptyCalculator) CompositeBy(parentCalculator PaymentCalculator) PaymentCalculator {
-	parentCalculator.AddChild(e)
-	return parentCalculator
-}
+func (e *EmptyCalculator) calculate(memeber PaymentMember, costPoint, costCoin float32) (point, coin float32, err error) {
 
-func (e *EmptyCalculator) Calculate(memeber PaymentMember, costPoint, costCoin float32) (point, coin float32, err error) {
 	if memeber.GetCoin() < costCoin {
 		err = ErrorCoinNotEnough
 		return
@@ -40,6 +41,10 @@ func (e *EmptyCalculator) Calculate(memeber PaymentMember, costPoint, costCoin f
 	return
 }
 
-func (e *EmptyCalculator) AddChild(childCalculator PaymentCalculator) {
-	e.child = childCalculator
+func (e *EmptyCalculator) Calculate(memeber PaymentMember, costPoint, costCoin float32) (point, coin float32, err error) {
+	return e.calculate(memeber, costPoint, costCoin)
+}
+
+func (e *EmptyCalculator) CalculateNonComposite(memeber PaymentMember, costPoint, costCoin float32) (point, coin float32, err error) {
+	return e.calculate(memeber, costPoint, costCoin)
 }

@@ -30,9 +30,10 @@ func NewDiscountCalculator(config *DiscountCalculatorConfig) *DiscountCalculator
 	return discountCalculator
 }
 
-func (d *DiscountCalculator) Calculate(memeber PaymentMember, costPoint, costCoin float32) (point, coin float32, err error) {
+func (d *DiscountCalculator) calculate(memeber PaymentMember, costPoint, costCoin float32, callChild bool) (point, coin float32, err error) {
+	// fmt.Printf("DiscountCalculator start...\n")
 	point, coin, _ = d.EmptyCalculator.Calculate(memeber, costPoint, costCoin)
-	if d.child != nil {
+	if d.child != nil && callChild {
 		point, coin, err = d.child.Calculate(memeber, point, coin)
 	}
 
@@ -41,4 +42,12 @@ func (d *DiscountCalculator) Calculate(memeber PaymentMember, costPoint, costCoi
 		coin *= discount
 	}
 	return
+}
+
+func (d *DiscountCalculator) Calculate(memeber PaymentMember, costPoint, costCoin float32) (point, coin float32, err error) {
+	return d.calculate(memeber, costPoint, costCoin, true)
+}
+
+func (d *DiscountCalculator) CalculateNonComposite(memeber PaymentMember, costPoint, costCoin float32) (point, coin float32, err error) {
+	return d.calculate(memeber, costPoint, costCoin, false)
 }

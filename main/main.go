@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+
+	. "github.com/lisyaoran51/goPaymentCalculator"
 )
 
 func main() {

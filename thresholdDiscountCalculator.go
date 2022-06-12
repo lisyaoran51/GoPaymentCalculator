@@ -1,6 +1,5 @@
 package goPaymentCalculator
 
-import "fmt"
 
 /*
  ********************************************
@@ -33,15 +32,22 @@ func NewThresholdDiscountCalculator(config *ThresholdDiscountCalculatorConfig) *
 	return thresholdDiscountCalculator
 }
 
-func (d *ThresholdDiscountCalculator) Calculate(memeber PaymentMember, costPoint, costCoin float32) (point, coin float32, err error) {
+func (d *ThresholdDiscountCalculator) calculate(memeber PaymentMember, costPoint, costCoin float32, callChild bool) (point, coin float32, err error) {
 	point, coin, _ = d.EmptyCalculator.Calculate(memeber, costPoint, costCoin)
-	if d.child != nil {
+	if d.child != nil && callChild {
 		point, coin, err = d.child.Calculate(memeber, point, coin)
-		fmt.Printf("ThresholdDiscountCalculator after: point:%f, coin:%f\n", point, coin)
 	}
 
 	if point > d.pointThreshold {
-		point, coin, err = d.DiscountCalculator.Calculate(memeber, point, coin)
+		point, coin, err = d.DiscountCalculator.CalculateNonComposite(memeber, point, coin)
 	}
 	return
+}
+
+func (d *ThresholdDiscountCalculator) Calculate(memeber PaymentMember, costPoint, costCoin float32) (point, coin float32, err error) {
+	return d.calculate(memeber, costPoint, costCoin, true)
+}
+
+func (d *ThresholdDiscountCalculator) CalculateNonComposite(memeber PaymentMember, costPoint, costCoin float32) (point, coin float32, err error) {
+	return d.calculate(memeber, costPoint, costCoin, false)
 }
