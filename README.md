@@ -15,11 +15,21 @@ then run `Calculate(member, point, coin)` to finish your payment calculation.
 
 the calculate flow would be `child >> parent` 
 
+<br>
+
 ### Structure
 
 > P.S. the inheritance in golang is implemented by `compositon over inheritance` technique
 
 ![](./doc/schema.png?raw=true)
+
+<br>
+
+### Compositie Payment Solution
+
+It uses `composite pattern` to solve composite payment problem through composing different calculators.
+
+<br>
 
 ### Scenario
 
